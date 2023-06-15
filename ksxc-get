@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [ -z "$psw_db_path" ]
+then
+  echo 'Variable $psw_db_path (password to the db) not found.'
+  exit 10
+fi
+
+if [ $# -lt 1 ]
+then
+  echo "Missed argument."
+  echo "Pattern: keepassxc-cli db-entry-name"
+  exit 20
+fi
+
+read -s -p "Enter db password: " password
+echo
+
+db_entry=$(echo "$password" | keepassxc-cli locate -k "$psw_db_key" "$psw_db_path" "$1" 2> /dev/null)
+
+if [ -n "$db_entry" ]
+then
+  echo "$password" | keepassxc-cli clip -k "$psw_db_key" "$psw_db_path" "$db_entry" 2> /dev/null
+else
+  echo "Wrong Password."
+  exit 30
+fi
+
